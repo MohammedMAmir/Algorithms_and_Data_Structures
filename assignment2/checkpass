@@ -3,6 +3,66 @@
 import csv
 import sys
 import time
+import string
 
-file = open(passwords.txt, mode = 'r', encoding = 'utf-8-sig')
-passwords = file.readlines()
+ALLOWABLECHARACTERS = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+
+def reversed(x):
+    return x[::-1]
+
+class Password:
+    def __init__(self, data, next = None):
+        self.data = data
+        self.next = next
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+    def insert(self, password):
+        newPassword = Password(password)
+        if(self.head == None):
+            self.head = newPassword
+            return
+        traverse = self.head
+        while(traverse.next):
+            traverse = traverse.next
+        traverse.next = newPassword
+    def print(self):
+        password = self.head
+        while password is not None:
+                print(password.data)
+                password = password.next
+    def checkMatch()
+
+TABLESIZE = 10000
+def keyGen(password):
+    sum = 0
+    for character in str(password):
+        sum += ord(character)
+
+    return sum
+
+def hash(password):
+    a = 538106227
+    r = 48
+    w = len(password)*8
+    key = ((a*keyGen(password))%(pow(2,w)))>>(w - r)
+    return key%TABLESIZE
+
+with open(sys.argv[1], "r") as file:
+    passwords = file.readlines()
+    hashTable = [LinkedList()]*TABLESIZE
+    for line in passwords:
+        password = line.strip()
+        key = hash(password)
+        hashTable[key].insert(password)
+    #for i in range(0, TABLESIZE):
+    #   hashTable[i].print()
+    if(len(sys.argv) > 2):
+        input = sys.argv[2]
+        if(len(input) > 12 or len(input) < 6):
+            print("INVALID")
+            sys.exit()
+        if(all(ch in ALLOWABLECHARACTERS for ch in input) != True):
+            print("INVALID")
+            sys.exit()
