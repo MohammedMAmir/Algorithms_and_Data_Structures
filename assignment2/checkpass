@@ -32,7 +32,17 @@ class LinkedList:
         while password is not None:
                 print(password.data)
                 password = password.next
-    def checkMatch()
+    def checkMatch(self, toCheck):
+        if(self.head == None):
+            return False
+        checkAgainst = self.head
+        while(checkAgainst):
+            if(checkAgainst.data == toCheck):
+                return True
+            if(reversed(checkAgainst.data) == toCheck):
+                return True
+            checkAgainst = checkAgainst.next
+        return False
 
 TABLESIZE = 10000
 def keyGen(password):
@@ -51,6 +61,7 @@ def hash(password):
 
 with open(sys.argv[1], "r") as file:
     passwords = file.readlines()
+    file.close()
     hashTable = [LinkedList()]*TABLESIZE
     for line in passwords:
         password = line.strip()
@@ -62,7 +73,20 @@ with open(sys.argv[1], "r") as file:
         input = sys.argv[2]
         if(len(input) > 12 or len(input) < 6):
             print("INVALID")
+            file.close()
             sys.exit()
         if(all(ch in ALLOWABLECHARACTERS for ch in input) != True):
             print("INVALID")
+            file.close()
             sys.exit()
+        keyInput = hash(input)
+        if(hashTable[keyInput].checkMatch(input) == True):
+            print("INVALID")
+            file.close()
+            sys.exit()
+        hashTable[keyInput].insert(input)
+        with open(sys.argv[1],"a") as file:
+            file.write(input + '\n')
+        print("VALID")
+        file.close()
+        sys.exit()
