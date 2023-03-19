@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+
+import csv
+import sys
+import time
+
+class Top_1_Influencer:
+    def __init__(self, node, influenced):
+        self.influencer = node
+        self.influenced = influenced
+class Edge:
+    def __init__(self, in_node, out_node, weight):
+        self.in_node = in_node
+        self.out_node = out_node
+        self.weight = weight
+
+class Node:
+    def __init__(self, number):
+        self.node_id = number
+        self.d = 0;
+        self.p = None
+        self.out_edge_list = []
+
+    def addEdge(self, out_node, weight):
+        self.out_edge_list.append(Edge(self.node_id, out_node, weight))
+
+def getMax(G):
+    maxNode = 0
+    for line in G:
+        split = line.split(" ")
+        nodeId = int(split[1])
+        if nodeId > maxNode:
+            maxNode = nodeId
+    
+    return maxNode
+
+def printList(G):
+    i = 0
+    for node in G:
+        print(f"Node {node.node_id} is connected to nodes: ")
+        for edge in node.out_edge_list:
+            print(str(edge.out_node) + " ")
+        print(f"\n")
+
+with open(sys.argv[1]) as file:
+    lines = file.readlines()
+    maxNode = getMax(lines)
+    T = int(sys.argv[2])
+    nodeList = []
+
+    for i in range(0,maxNode+1):
+        nodeList.append(Node(i))
+
+    for line in lines:
+        split = line.split(" ")
+        in_node = int(split[0])
+        out_node = int(split[1])
+        weight = float(split[2].strip())
+        nodeList[in_node].addEdge(out_node, weight)
+    
+    #printList(nodeList)
+    top_influencer = Top_1_Influencer(None, 0)
+    start = time.time()
+    for influencer in range(0,maxNode+1):
+        s = influencer
+        for node in nodeList:
+            node.d = float("Inf")
+            node.p = None
+        nodeList[s].d = 0
+
+        prevCount = 0
+        for i in range(1, maxNode):
+            count = 0
+            for node in nodeList:
+                count += node.d
+                for edge in node.out_edge_list:
+                    tempDist = node.d + edge.weight
+                    if(tempDist < nodeList[edge.out_node].d):
+                        nodeList[edge.out_node].d = tempDist
+                        nodeList[edge.out_node].p = node
+            if prevCount == count:
+                break
+            else:
+                prevCount = count   
+        influencable = 0
+        for node in nodeList:
+            if node.d <= T:
+                influencable += 1
+        if(influencable > top_influencer.influenced):
+            top_influencer.influenced = influencable
+            top_influencer.influencer = influencer
+    end = time.time()
+    print(f"TOP-1 INFLUENCER: {top_influencer.influencer}, SPREAD: {top_influencer.influenced}, TIME: {end - start}")
+
